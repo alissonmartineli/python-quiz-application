@@ -20,31 +20,49 @@ QUESTIONS = {
     ],
 }
 
-num_questions = min(NUM_QUESTIONS_PER_QUIZ, len(QUESTIONS))
-questions = random.sample(list(QUESTIONS.items()), k=num_questions)
 
-num_correct = 0
-
-for num, (question, alternatives) in enumerate(questions, start=1):
-    print(f'\nQuestion {num}:')
-    print(f'{question}?')
-
-    correct_answer = alternatives[0]
-
-    labeled_alternatives = dict(
-        zip(ascii_lowercase, random.sample(alternatives, k=len(alternatives)))
+def run_quiz():
+    questions = prepare_questions(
+        QUESTIONS, num_questions=NUM_QUESTIONS_PER_QUIZ
     )
-    for label, alternative in labeled_alternatives.items():
-        print(f'  {label}) {alternative}')
 
-    while (answer_label := input('\nChoice? ')) not in labeled_alternatives:
+    num_correct = 0
+    for num, (question, alternatives) in enumerate(questions, start=1):
+        print(f"\nQuestion {num}:")
+        num_correct += ask_question(question, alternatives)
+
+    print(f"\nYou got {num_correct} correct out of {num} questions")
+
+
+def prepare_questions(questions, num_questions):
+    num_questions = min(num_questions, len(questions))
+    return random.sample(list(questions.items()), k=num_questions)
+
+
+def ask_question(question, alternatives):
+    correct_answer = alternatives[0]
+    ordered_alternatives = random.sample(alternatives, k=len(alternatives))
+
+    answer = get_answer(question, ordered_alternatives)
+    if answer == correct_answer:
+        print("⭐ Correct! ⭐")
+        return 1
+    else:
+        print(f"The answer is {correct_answer!r}, not {answer!r}")
+        return 0
+
+
+def get_answer(question, alternatives):
+    print(f"{question}?")
+    labeled_alternatives = dict(zip(ascii_lowercase, alternatives))
+    for label, alternative in labeled_alternatives.items():
+        print(f"  {label}) {alternative}")
+
+    while (answer_label := input("\nChoice? ")) not in labeled_alternatives:
         print(f"Please answer one of {', '.join(labeled_alternatives)}")
 
-    answer = labeled_alternatives[answer_label]
-    if answer == correct_answer:
-        num_correct += 1
-        print('⭐ Correct! ⭐')
-    else:
-        print(f'The answer is {correct_answer!r}, not {answer!r}')
+    return labeled_alternatives[answer_label]
 
-print(f'\nYou got {num_correct} correct out of {num} questions')
+
+if __name__ == "__main__":
+    run_quiz()
