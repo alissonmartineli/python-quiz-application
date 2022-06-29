@@ -37,7 +37,8 @@ def ask_question(question):
     answers = get_answers(
         question=question["question"],
         alternatives=ordered_alternatives,
-        num_choices=len(correct_answers)
+        num_choices=len(correct_answers),
+        hint=question.get("hint"),
     )
     if set(answers) == set(correct_answers):
         print("⭐ Correct! ⭐")
@@ -48,9 +49,13 @@ def ask_question(question):
         return 0
 
 
-def get_answers(question, alternatives, num_choices=1):
+def get_answers(question, alternatives, num_choices=1, hint=None):
     print(f"{question}?")
     labeled_alternatives = dict(zip(ascii_lowercase, alternatives))
+
+    if hint:
+        labeled_alternatives["?"] = "Hint"
+
     for label, alternative in labeled_alternatives.items():
         print(f"  {label}) {alternative}")
 
@@ -58,6 +63,10 @@ def get_answers(question, alternatives, num_choices=1):
         plural_s = "" if num_choices == 1 else f"s (choose {num_choices})"
         answer = input(f"\nChoice{plural_s}? ")
         answers = set(answer.replace(",", " ").split())
+
+        if hint and "?" in answers:
+            print(f"\nHINT: {hint}")
+            continue
 
         if len(answers) != num_choices:
             plural_s = "" if num_choices == 1 else "s, separated by comma"
